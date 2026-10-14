@@ -1,0 +1,18 @@
+{
+  "name": "kbs-school-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KBS School ERP for Modern K.B.S. Senior Secondary School: parent app and staff app (fees, receipts, attendance, timetable, reports). No dependencies.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch-path=server --watch-path=shared server/index.js",
+    "reset": "node server/seed.js --reset",
+    "test": "node --test \"test/*.test.js\"",
+    "create-admin": "node server/create-admin.js",
+    "icons": "node scripts/make-icons.js"
+  }
+}

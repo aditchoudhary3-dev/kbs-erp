@@ -1,0 +1,11 @@
+data
+node_modules
+.git
+.github
+.env
+*.db
+*.db-*
+test
+deploy
+README.md
+GOING-LIVE.md

@@ -1,0 +1,38 @@
+# The live server: the app, and Caddy in front of it for HTTPS.
+# Settings come from the .env file next to this one (see .env.example).
+#   Start or update:  docker compose up -d --build
+#   See the logs:     docker compose logs -f app
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DB_FILE: /app/data/schoolconnect.db
+      PUBLIC_BASE_URL: https://${DOMAIN}
+    volumes:
+      - kbs-data:/app/data
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  kbs-data: # the database, backups and exports
+  caddy-data: # HTTPS certificates
+  caddy-config:

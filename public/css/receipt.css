@@ -1,0 +1,863 @@
+/* Fee receipt: School Copy and Parent Copy.
+   Each copy is one A4 portrait page (210 × 297 mm). Printing uses a 10 mm
+   margin, so each copy fills the 190 × 277 mm printable area exactly. */
+
+@font-face {
+  font-family: 'DM Sans';
+  font-weight: 400 700;
+  src: url('/fonts/dm-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F, U+2212;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-weight: 400 700;
+  src: url('/fonts/dm-sans-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+20A0-20C0;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 600 700;
+  src: url('/fonts/fraunces-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+:root {
+  --ink: #13203f;
+  --ink-2: #37425e;
+  --muted: #5b6680;
+  --primary: #0b3f91;
+  --navy: #0a2a5e;
+  --gold: #d4a537;
+  --gold-bright: #f2b632;
+  --gold-soft: #fdf3d6;
+  --border: #d5dcea;
+  --rule: #e3e8f2;
+  --bg: #f4f6fb;
+  --ok: #2f7d4f;
+  --ok-bg: #ddefe3;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #dfe5f0;
+}
+
+body {
+  margin: 0;
+  padding: 72px 16px 40px;
+  font: 13.5px/1.4 'DM Sans', system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---- Toolbar (screen only) ---- */
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.toolbar-title {
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+.tb-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.tb-tab,
+.tb-copy {
+  padding: 6px 12px;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tb-tab[aria-current='page'] {
+  background: #fff;
+  color: var(--ink);
+}
+
+.tb-button {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font: 600 14px 'DM Sans', system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tb-primary {
+  border-color: var(--gold-bright);
+  background: var(--gold-bright);
+  color: var(--navy);
+}
+
+/* ---- The page ---- */
+
+/* On screen each copy is shown as a sheet of A4 paper. */
+.paper {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  padding: 10mm;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(19, 32, 63, 0.16);
+}
+
+.paper + .paper {
+  margin-top: 28px;
+}
+
+.sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 190mm;
+  height: 277mm;
+  overflow: hidden;
+  padding: 6mm 7mm 5mm;
+  border: 1.5px solid var(--primary);
+  background: #fff;
+}
+
+/* Letterhead */
+
+.head-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 10px;
+}
+
+.logo {
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+}
+
+.school h1 {
+  margin: 0 0 4px;
+  font: 700 21px/1.15 Fraunces, Georgia, serif;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  color: var(--primary);
+}
+
+.school p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+/* FEE RECEIPT, with the large copy label */
+
+.title-band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 7px 8px 7px 16px;
+  background: var(--navy);
+  border-bottom: 4px solid var(--gold);
+  color: #fff;
+}
+
+.title-band h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.copy-label {
+  padding: 4px 16px;
+  border-radius: 6px;
+  background: var(--gold-bright);
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sheet--parent .copy-label {
+  background: #fff;
+  box-shadow: inset 0 0 0 3px var(--gold-bright);
+}
+
+/* Fields */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 20px;
+  margin: 12px 0 0;
+}
+
+.fields .f {
+  min-width: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.fields .span-2 {
+  grid-column: span 2;
+}
+
+.fields .span-3 {
+  grid-column: 1 / -1;
+}
+
+.fields dt {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.fields dd {
+  margin: 1px 0 0;
+  font-size: 14.5px;
+  overflow-wrap: anywhere;
+}
+
+/* Fee Head | Amount */
+
+.heads {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.heads caption {
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.heads th,
+.heads td {
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.heads thead th {
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* One line per fee head: the head, then what was paid under it. */
+.heads .head-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  max-width: 140mm;
+}
+
+.heads .head {
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.heads .detail {
+  overflow: hidden;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.heads .unpaid td {
+  color: #8a93a8;
+}
+
+.heads .unpaid .head {
+  font-weight: 500;
+}
+
+.heads .num {
+  width: 34mm;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.heads .unpaid .num {
+  font-weight: 400;
+}
+
+.heads tfoot th,
+.heads tfoot td {
+  border-top: 2px solid var(--gold);
+  border-bottom: 0;
+  background: var(--gold-soft);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.words {
+  margin: 7px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.words span {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.fields--payment {
+  margin-top: 10px;
+}
+
+.paid,
+.cancelled {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.cancelled {
+  background: var(--danger-bg);
+  color: #8a1c12;
+}
+
+/* Footer, always at the bottom of the page */
+
+.foot {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.foot-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: var(--navy);
+  color: #fff;
+  text-align: center;
+}
+
+.foot-mark strong {
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.foot-mark--parent {
+  border: 1.5px solid var(--gold);
+  background: var(--gold-soft);
+  color: var(--ink-2);
+}
+
+.foot-mark--parent strong {
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--navy);
+}
+
+.foot-mark span {
+  font-size: 12.5px;
+}
+
+.signs {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 28px;
+  margin-top: 22px;
+}
+
+.sign {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.sheet--parent .sign {
+  flex: 0 1 50%;
+}
+
+.sign-line {
+  flex-grow: 1;
+  min-width: 30mm;
+  height: 1px;
+  margin-bottom: 4px;
+  background: var(--ink-2);
+}
+
+.stamp {
+  padding: 2px 16px;
+  border: 2.5px solid var(--ok);
+  border-radius: 6px;
+  color: var(--ok);
+  font: 700 17px Fraunces, Georgia, serif;
+  letter-spacing: 3px;
+  transform: rotate(-5deg);
+}
+
+.stamp--cancelled {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Cancelled and replacement receipts */
+
+.watermark {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%) rotate(-24deg);
+  font: 700 92px Fraunces, Georgia, serif;
+  color: rgba(180, 35, 24, 0.12);
+  letter-spacing: 6px;
+  pointer-events: none;
+}
+
+.cancel-note,
+.replace-note {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 8px 0 0;
+  /* Borders, not padding, above and below: the clipped third line must not show. */
+  padding: 0 10px;
+  border: 5px solid transparent;
+  border-width: 5px 0;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.cancel-note {
+  background: var(--danger-bg);
+  color: #8a1c12;
+}
+
+.replace-note {
+  background: #e3ebf8;
+  color: var(--primary);
+}
+
+/* ---- Both copies on one A4 page: School Copy on top, Parent Copy below ---- */
+
+.paper--duo {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet--half {
+  width: 100%;
+  height: 134mm;
+  padding: 4mm 6mm 3.5mm;
+  border-width: 1.2px;
+}
+
+.cut-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 9mm;
+  background: linear-gradient(to right, var(--muted) 50%, transparent 50%) center / 10px 1px repeat-x;
+}
+
+.cut-line span {
+  padding: 0 10px;
+  background: #fff;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.sheet--half .head-block {
+  gap: 12px;
+  padding-bottom: 5px;
+}
+
+.sheet--half .logo {
+  width: 52px;
+  height: 52px;
+}
+
+.sheet--half .school h1 {
+  margin-bottom: 1px;
+  font-size: 16px;
+}
+
+.sheet--half .school p {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.sheet--half .title-band {
+  padding: 3px 4px 3px 12px;
+  border-bottom-width: 3px;
+}
+
+.sheet--half .title-band h2 {
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.sheet--half .copy-label {
+  padding: 1px 12px;
+  font-size: 14.5px;
+  letter-spacing: 1.5px;
+}
+
+.sheet--half .fields {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 3px 12px;
+  margin-top: 6px;
+}
+
+.sheet--half .fields .f {
+  padding-bottom: 2px;
+}
+
+.sheet--half .fields dt {
+  font-size: 9.5px;
+}
+
+.sheet--half .fields dd {
+  margin: 0;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.heads--pairs {
+  margin-top: 6px;
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+.heads--pairs caption {
+  margin-bottom: 2px;
+  font-size: 10px;
+}
+
+.heads--pairs th,
+.heads--pairs td {
+  padding: 3px 8px;
+}
+
+.heads--pairs thead th {
+  font-size: 9.5px;
+}
+
+.heads--pairs th:nth-child(2),
+.heads--pairs td:nth-child(2) {
+  border-right: 1px solid var(--border);
+}
+
+.heads--pairs .num {
+  width: 24mm;
+}
+
+.heads--pairs .head-cell {
+  gap: 6px;
+  max-width: none;
+}
+
+.heads--pairs .detail {
+  font-size: 9.5px;
+}
+
+.heads--pairs td.unpaid {
+  color: #8a93a8;
+}
+
+.heads--pairs td.unpaid .head {
+  font-weight: 500;
+}
+
+.heads--pairs td.num.unpaid {
+  font-weight: 400;
+}
+
+.heads--pairs tfoot th,
+.heads--pairs tfoot td {
+  border-top-width: 1.5px;
+  font-size: 13px;
+}
+
+.words-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.sheet--half .words {
+  overflow: hidden;
+  min-width: 0;
+  margin: 0;
+  font-size: 11.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.words-row .extra {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 11.5px;
+}
+
+.words-row .extra span {
+  color: var(--muted);
+}
+
+.sheet--half .fields--payment {
+  margin-top: 5px;
+}
+
+.sheet--half .cancel-note,
+.sheet--half .replace-note {
+  margin-top: 4px;
+  border-width: 3px 0;
+  font-size: 10.5px;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.foot--half {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding-top: 5px;
+}
+
+.foot--half .foot-mark {
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 12px;
+}
+
+.foot--half .foot-mark strong {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.foot--half .foot-mark span {
+  font-size: 10.5px;
+}
+
+.foot--half .signs {
+  flex: 1 1 auto;
+  gap: 18px;
+  margin-top: 0;
+}
+
+.foot--half .sign {
+  font-size: 11px;
+}
+
+.foot--half .sign-line {
+  min-width: 18mm;
+  margin-bottom: 3px;
+}
+
+.sheet--half .watermark {
+  font-size: 56px;
+}
+
+/* ---- Small screens: the same receipt, flowing to the screen width ---- */
+
+@media screen and (max-width: 860px) {
+  body {
+    padding: 0 10px 32px;
+  }
+  .toolbar {
+    position: sticky;
+    margin: 0 -10px 12px;
+  }
+  .paper {
+    width: auto;
+    height: auto;
+    padding: 0;
+  }
+  .sheet {
+    width: auto;
+    height: auto;
+    min-height: 0;
+    padding: 16px 14px;
+  }
+  .head-block {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .logo {
+    width: 56px;
+    height: 56px;
+  }
+  .school h1 {
+    font-size: 17px;
+    white-space: normal;
+  }
+  .school p {
+    font-size: 12.5px;
+  }
+  .title-band {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+  }
+  .title-band h2,
+  .copy-label {
+    font-size: 16px;
+  }
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fields .span-2,
+  .fields .span-3 {
+    grid-column: 1 / -1;
+  }
+  .heads .head-cell {
+    flex-wrap: wrap;
+    gap: 0 8px;
+    max-width: none;
+  }
+  .heads .detail {
+    white-space: normal;
+  }
+  .signs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+  }
+  .sheet--parent .sign {
+    flex-basis: auto;
+  }
+  .sheet--half .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sheet--half .fields .span-2,
+  .sheet--half .fields .span-3 {
+    grid-column: 1 / -1;
+  }
+  .heads--pairs {
+    table-layout: auto;
+  }
+  .foot--half {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .words-row {
+    flex-wrap: wrap;
+  }
+  .sheet--half .words {
+    white-space: normal;
+  }
+  .cut-line {
+    height: 40px;
+  }
+}
+
+/* ---- Printing: exactly one A4 page per copy ---- */
+
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .toolbar {
+    display: none;
+  }
+  /* The page margin (10 mm) replaces the paper's padding. */
+  .paper {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .paper + .paper {
+    margin-top: 0;
+    break-before: page;
+    page-break-before: always;
+  }
+  /* The full printable width, and 1 mm under the printable height (277 mm)
+     so rounding can never spill onto a second page. */
+  .sheet {
+    width: 100%;
+    height: 276mm;
+  }
+  /* Both copies on one page: two halves and the cut line fill 276 mm. */
+  .paper--duo .sheet--half {
+    height: 133.5mm;
+  }
+  /* Every field is one line, so a copy is always the same height. */
+  .fields dd {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}

@@ -1,0 +1,8 @@
+# Never commit the database, backups or secrets.
+data/
+.env
+*.db
+*.db-shm
+*.db-wal
+node_modules/
+.DS_Store

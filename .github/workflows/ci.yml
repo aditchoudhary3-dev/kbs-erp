@@ -1,0 +1,41 @@
+# Runs the automatic checks on every change, and (when the server details are
+# set up as GitHub secrets) updates the live server after a change to main.
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm test
+
+  deploy:
+    # Only for main, after the tests pass, and only when SERVER_HOST is set.
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+      SERVER_PATH: ${{ secrets.SERVER_PATH }}
+    steps:
+      - name: Update the live server
+        if: env.SERVER_HOST != ''
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SERVER_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "${SERVER_USER:-ubuntu}@$SERVER_HOST" \
+            "cd ${SERVER_PATH:-kbs-erp} && git pull --ff-only && sudo docker compose up -d --build"
+      - name: Not set up yet
+        if: env.SERVER_HOST == ''
+        run: echo "Add SERVER_HOST, SERVER_USER and SERVER_SSH_KEY as repository secrets to deploy automatically (see GOING-LIVE.md)."
